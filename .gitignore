@@ -1,0 +1,11 @@
+# Ignorar arquivos de log  
+*.log  
+
+# Ignorar diretórios temporários  
+temp/  
+
+# Ignorar arquivos de configuração  
+config.yml
+.idea
+.env
+.venv
