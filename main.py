@@ -42,14 +42,41 @@ def callback_query(call):
         bot.send_message(chat_id, "🔹 **Por favor, informe uma breve descrição do problema que você está enfrentando:**")
         bot.register_next_step_handler_by_chat_id(chat_id, buscar_base_conhecimento)
 
+    elif call.data in ["fabrica_I", "fabrica_II"]:
+        usuarios_os[chat_id]['unidade'] = "Fábrica I" if call.data == "fabrica_I" else "Fábrica II"
+        bot.send_message(chat_id, "🔹 **Informe seu setor:**", reply_markup=setor_markup())
+
+    elif call.data in ["incidente", "requisicao"]:
+        usuarios_os[chat_id]['tipo'] = call.data
+        bot.send_message(chat_id, "🔹 **Qual é a URGÊNCIA da sua OS?**", reply_markup=urgencia_markup())
+
+    elif call.data in ["alta", "media", "baixa"]:
+        usuarios_os[chat_id]['urgencia'] = call.data
+        numero_os = usuarios_os[chat_id]['numero_os']
+        bot.send_message(chat_id, f"✅ *Pronto!* Sua OS foi criada com sucesso!\n\n"
+                                  f"**Resumo da OS:**\n"
+                                  f"**Login:** {usuarios_os[chat_id]['login']}\n"
+                                  f"**Unidade:** {usuarios_os[chat_id]['unidade']}\n"
+                                  f"**Setor:** {usuarios_os[chat_id]['setor']}\n"
+                                  f"**Título:** {usuarios_os[chat_id]['titulo']}\n"
+                                  f"**Tipo:** {usuarios_os[chat_id]['tipo']}\n"
+                                  f"**Urgência:** {usuarios_os[chat_id]['urgencia']}\n"
+                                  f"**Linha:** {usuarios_os[chat_id].get('linha', 'N/A')}\n"
+                                  f"**Área de Produção:** {usuarios_os[chat_id].get('area_producao', 'N/A')}\n"
+                                  f"\n**Seu número da OS é:** {numero_os}\n"
+                                  f"Para acompanhar, basta escolher a opção 2.")
+    else:
+        usuarios_os[chat_id]['setor'] = call.data
+        bot.send_message(chat_id, "🔹 **Me informe um título para seu chamado:**")
+        bot.register_next_step_handler_by_chat_id(chat_id, obter_titulo)
+
 def obter_login(message):
     chat_id = message.chat.id
     login_usuario = message.text.strip()
     usuarios_os[chat_id] = {
         'login': login_usuario,
-        'numero_os': random.randint(100000, 999999)  # Gerar um número de OS
+        'numero_os': random.randint(100000, 999999)
     }
-
     bot.send_message(chat_id, "🔹 **Me informe a unidade que você pertence:**", reply_markup=unidade_markup())
 
 def unidade_markup():
@@ -59,81 +86,30 @@ def unidade_markup():
     markup.add(fab1_btn, fab2_btn)
     return markup
 
-@bot.callback_query_handler(func=lambda call: call.data in ["fabrica_I", "fabrica_II"])
-def obter_setor(call):
-    chat_id = call.message.chat.id
-    if call.data == "fabrica_I":
-        usuarios_os[chat_id]['unidade'] = "Fábrica I"
-    elif call.data == "fabrica_II":
-        usuarios_os[chat_id]['unidade'] = "Fábrica II"
-
-    bot.send_message(chat_id, "🔹 **Informe seu setor:**", reply_markup=setor_markup())
-
 def setor_markup():
     markup = types.InlineKeyboardMarkup()
-    setores = [
-        "Almoxarifado", "Área Técnica - Produção", "Área Técnica de Projetos",
-        "Compras", "Contabilidade", "Controle da Qualidade", "Custos",
-        "Diretoria", "Engenharia", "Expedição", "Faturamento",
-        "Financeiro", "Fiscal", "Jurídico", "Planej. e Controle da Produção",
-        "Produção", "Recepção", "Recursos Humanos", "SESMT", "SGI", "SMD",
-        "Tecnologia da Informação"
-    ]
+    setores = ["Almoxarifado", "Área Técnica - Produção", "Área Técnica de Projetos",
+               "Compras", "Contabilidade", "Controle da Qualidade", "Custos",
+               "Diretoria", "Engenharia", "Expedição", "Faturamento",
+               "Financeiro", "Fiscal", "Jurídico", "Planej. e Controle da Produção",
+               "Produção", "Recepção", "Recursos Humanos", "SESMT", "SGI", "SMD",
+               "Tecnologia da Informação"]
     for setor in setores:
-        setor_btn = types.InlineKeyboardButton(setor, callback_data=setor)
-        markup.add(setor_btn)
+        markup.add(types.InlineKeyboardButton(setor, callback_data=setor))
     return markup
-
-@bot.callback_query_handler(func=lambda call: True)
-def processar_setor(call):
-    chat_id = call.message.chat.id
-    setor_usuario = call.data
-    usuarios_os[chat_id]['setor'] = setor_usuario
-
-    if setor_usuario == "Produção":
-        bot.send_message(chat_id, "🔹 **Me informe qual área da produção:**\nIA - Inserção Automática OU IM - Inserção Manual.")
-        bot.register_next_step_handler_by_chat_id(chat_id, obter_area_producao)
-    else:
-        bot.send_message(chat_id, "🔹 **Me informe um título para seu chamado:**")
-        bot.register_next_step_handler_by_chat_id(chat_id, obter_titulo)
-
-def obter_area_producao(message):
-    chat_id = message.chat.id
-    area_producao = message.text.strip()
-    usuarios_os[chat_id]['area_producao'] = area_producao
-
-    bot.send_message(chat_id, "🔹 **Me informe sua linha:**")
-    bot.register_next_step_handler_by_chat_id(chat_id, obter_linha)
-
-def obter_linha(message):
-    chat_id = message.chat.id
-    linha = message.text.strip()
-    usuarios_os[chat_id]['linha'] = linha
-
-    bot.send_message(chat_id, "🔹 **Me informe um título para seu chamado:**")
-    bot.register_next_step_handler_by_chat_id(chat_id, obter_titulo)
 
 def obter_titulo(message):
     chat_id = message.chat.id
     titulo_os = message.text.strip()
     usuarios_os[chat_id]['titulo'] = titulo_os
-
     bot.send_message(chat_id, "🔹 **Seu chamado é um:**", reply_markup=tipo_os_markup())
 
 def tipo_os_markup():
     markup = types.InlineKeyboardMarkup()
-    incidente_btn = types.InlineKeyboardButton("🚨 Incidente (Sinitro/problema)", callback_data="incidente")
+    incidente_btn = types.InlineKeyboardButton("🚨 Incidente (Sinistro/problema)", callback_data="incidente")
     requisicao_btn = types.InlineKeyboardButton("📝 Requisição (Solicitação)", callback_data="requisicao")
     markup.add(incidente_btn, requisicao_btn)
     return markup
-
-@bot.callback_query_handler(func=lambda call: call.data in ["incidente", "requisicao"])
-def obter_tipo(call):
-    chat_id = call.message.chat.id
-    tipo_os = call.data
-    usuarios_os[chat_id]['tipo'] = tipo_os
-
-    bot.send_message(chat_id, "🔹 **Qual é a URGÊNCIA da sua OS?**", reply_markup=urgencia_markup())
 
 def urgencia_markup():
     markup = types.InlineKeyboardMarkup()
@@ -143,46 +119,21 @@ def urgencia_markup():
     markup.add(alta_btn, media_btn, baixa_btn)
     return markup
 
-@bot.callback_query_handler(func=lambda call: call.data in ["alta", "media", "baixa"])
-def finalizar_os(call):
-    chat_id = call.message.chat.id
-    urgencia = call.data
-    usuarios_os[chat_id]['urgencia'] = urgencia
-
-    # Resumo e número da OS
-    numero_os = usuarios_os[chat_id]['numero_os']
-    bot.send_message(chat_id, f"✅ *Pronto!* Sua OS foi criada com sucesso!\n\n"  
-        f"**Resumo da OS:**\n"  
-        f"**Login:** {usuarios_os[chat_id]['login']}\n"  
-        f"**Unidade:** {usuarios_os[chat_id]['unidade']}\n"  
-        f"**Setor:** {usuarios_os[chat_id]['setor']}\n"  
-        f"**Título:** {usuarios_os[chat_id]['titulo']}\n"  
-        f"**Tipo:** {usuarios_os[chat_id]['tipo']}\n"  
-        f"**Urgência:** {usuarios_os[chat_id]['urgencia']}\n"  
-        f"**Linha:** {usuarios_os[chat_id].get('linha', 'N/A')}\n"  
-        f"**Área de Produção:** {usuarios_os[chat_id].get('area_producao', 'N/A')}\n"  
-        f"\n**Seu número da OS é:** {numero_os}\n"  
-        f"Para acompanhar, basta escolher a opção 2.")
-
-# Função para verificar o status da OS
 def verificar_status_os(message):
     chat_id = message.chat.id
     numero_os = message.text.strip()
-
-    # Verificar se a OS existe
     if numero_os in [str(usuario['numero_os']) for usuario in usuarios_os.values()]:
         for usuario in usuarios_os.values():
             if usuario['numero_os'] == int(numero_os):
-                status = "Em andamento"  # Lógica para obter o status real
-                bot.send_message(chat_id, f"🔍 OS encontrada com sucesso!\n\n"  
-                                           f"**ID:** {usuario['numero_os']}\n"  
-                                           f"**Data de Abertura:** [Data aqui]\n"  
-                                           f"**Título:** {usuario['titulo']}\n"  
-                                           f"**Status:** {status}")
+                status = "Em andamento"
+                bot.send_message(chat_id, f"🔍 OS encontrada com sucesso!\n\n"
+                                          f"**ID:** {usuario['numero_os']}\n"
+                                          f"**Data de Abertura:** [Data aqui]\n"
+                                          f"**Título:** {usuario['titulo']}\n"
+                                          f"**Status:** {status}")
                 return
     bot.send_message(chat_id, "⚠️ OS não encontrada. Verifique o número e tente novamente.")
 
-# Função para buscar na base de conhecimento
 def buscar_base_conhecimento(message):
     chat_id = message.chat.id
     descricao = message.text.strip()
@@ -193,6 +144,5 @@ def sair_conversa(message):
     chat_id = message.chat.id
     bot.send_message(chat_id, "👋 Você saiu da conversa. Até mais!")
 
-# Iniciar o bot
 if __name__ == "__main__":
     bot.polling()
