@@ -38,7 +38,7 @@ services:
     container_name: meu_bot
     restart: always
     environment:
-      TOKEN_TELEGRAM: "7002678052:AAF2ULO5AxjM7PQ4MmtfxVNdnqA5wPWQ-fA"
+      TOKEN_TELEGRAM: "Token_telegram"
       GLPI_API_URL: "http://meu_glpi/front/api.php"
       GLPI_APP_TOKEN: "SEU_APP_TOKEN"
       GLPI_USER_TOKEN: "SEU_USER_TOKEN"
