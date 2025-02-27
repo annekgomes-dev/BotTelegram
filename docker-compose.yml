@@ -19,5 +19,32 @@ services:
       retries: 5
       start_period: 10s
 
+  glpi:
+    image: cmotta2016/glpi:latest
+    container_name: meu_glpi
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      TZ: America/Sao_Paulo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - glpi_data:/var/www/html/glpi
+
+  bot:
+    build: ./app
+    container_name: meu_bot
+    restart: always
+    environment:
+      TOKEN_TELEGRAM: "7002678052:AAF2ULO5AxjM7PQ4MmtfxVNdnqA5wPWQ-fA"
+      GLPI_API_URL: "http://meu_glpi/front/api.php"
+      GLPI_APP_TOKEN: "SEU_APP_TOKEN"
+      GLPI_USER_TOKEN: "SEU_USER_TOKEN"
+    depends_on:
+      - glpi
+
 volumes:
   postgres_data:
+  glpi_data:
