@@ -4,8 +4,8 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root@fpf10
-      POSTGRES_DB: postegress
+      POSTGRES_USER: SeuBanco
+      POSTGRES_PASSWORD: SuaSenha
+      POSTGRES_DB: SeuBanco
     ports:
       - "5433:5433"
