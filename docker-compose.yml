@@ -1,50 +1,11 @@
-version: '3.8'
-
+version: "3.8"
 services:
-  postgres:
-    image: postgres:latest
-    container_name: meu_postgres
+  db:
+    image: postgres
     restart: always
     environment:
-      POSTGRES_USER: annekgomes
-      POSTGRES_PASSWORD: root1
-      POSTGRES_DB: database
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root@fpf10
+      POSTGRES_DB: postegress
     ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U annekgomes -d database"]
-      interval: 10s
-      retries: 5
-      start_period: 10s
-
-  glpi:
-    image: cmotta2016/glpi:latest
-    container_name: meu_glpi
-    restart: always
-    ports:
-      - "8080:80"
-    environment:
-      TZ: America/Sao_Paulo
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - glpi_data:/var/www/html/glpi
-
-  bot:
-    build: ./app
-    container_name: meu_bot
-    restart: always
-    environment:
-      TOKEN_TELEGRAM: "Token_telegram"
-      GLPI_API_URL: "http://meu_glpi/front/api.php"
-      GLPI_APP_TOKEN: "SEU_APP_TOKEN"
-      GLPI_USER_TOKEN: "SEU_USER_TOKEN"
-    depends_on:
-      - glpi
-
-volumes:
-  postgres_data:
-  glpi_data:
+      - "5433:5433"
