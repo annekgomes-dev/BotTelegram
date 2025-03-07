@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.routes import users, os
-from app.database import engine, Base
+from app.routes.database import engine, Base
 
 app = FastAPI()
 

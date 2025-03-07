@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Usuario, OrdemServico
+from app.routes.models import Usuario, OrdemServico
 
 def criar_usuario(db: Session, nome: str, email: str):
     usuario = Usuario(nome=nome, email=email)
