@@ -7,5 +7,5 @@ temp/
 # Ignorar arquivos de configuração  
 config.yml
 .idea
-app/.env
+.env
 .venv
