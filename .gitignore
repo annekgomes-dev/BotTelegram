@@ -9,3 +9,5 @@ config.yml
 .idea
 .env
 .venv
+docker-compose.yml
+Dockerfile
